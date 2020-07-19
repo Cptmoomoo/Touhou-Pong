@@ -42,7 +42,7 @@ function preload ()
 {
     this.load.image('background', 'assets/black.jpg');
     this.load.image('pongbar', 'assets/reimu.png');
-    this.load.image('ball', 'assets/ball');
+    this.load.image('ball', 'assets/ball.png');
     this.load.image('alice_score', 'assets/alice_doll.png');
 
     // Alice Animation Spritesheets
