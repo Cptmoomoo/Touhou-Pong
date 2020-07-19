@@ -72,14 +72,17 @@ function whenAliceAttack(alice_box, ball) {
     else alice.anims.play('alice_attackR');
 }
 
-function scoreReimu(top_goal, ball) {
-    alice_score_sprites[4 - reimu_score].destroy();
-    reimu_score++;
-    console.log(reimu_score);
+function resetBall() {
     ball.x = 160;
     ball.y = 240;
     ball.setVelocityX(randVelocity());
     ball.setVelocityY(randVelocity());
+}
+
+function scoreReimu(top_goal, ball) {
+    alice_score_sprites[4 - reimu_score].destroy();
+    reimu_score++;
+    resetBall();
 }
 
 function create ()
@@ -107,13 +110,13 @@ function create ()
     this.anims.create({
         key: 'alice_idleL',
         frames: this.anims.generateFrameNumbers('alice_idleL', {start: 0, end: 15}),
-        frameRate: 10,
+        frameRate: 15,
         repeat: -1
     });
     this.anims.create({
         key: 'alice_idleR',
         frames: this.anims.generateFrameNumbers('alice_idleR', {start: 0, end: 15}),
-        frameRate: 10,
+        frameRate: 15,
         repeat: -1
     });
     this.anims.create({
@@ -232,8 +235,8 @@ function update ()
         alice.anims.play('alice_lose');
         this.physics.pause();
         const restartButton = this.add.text(125, 190, 'Restart', { fill: '#0f0' }).setInteractive().on('pointerdown', () => {
-            this.scene.stop();
-            this.scene.start();
+            alice_attack = false;
+            this.scene.restart();
         });
     }
 
