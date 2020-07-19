@@ -107,13 +107,13 @@ function create ()
     this.anims.create({
         key: 'alice_idleL',
         frames: this.anims.generateFrameNumbers('alice_idleL', {start: 0, end: 15}),
-        frameRate: 15,
+        frameRate: 10,
         repeat: -1
     });
     this.anims.create({
         key: 'alice_idleR',
         frames: this.anims.generateFrameNumbers('alice_idleR', {start: 0, end: 15}),
-        frameRate: 15,
+        frameRate: 10,
         repeat: -1
     });
     this.anims.create({
