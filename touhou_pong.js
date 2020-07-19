@@ -190,14 +190,8 @@ function create ()
     shift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
 
     // Animation Events
-    alice.on('animationstart', function(animation, frame) {
-        if (animation.key === 'alice_dashL') {
-            console.log('dashed left');
-        }
-        else if (animation.key === 'alice_dashR') {
-            console.log('dashed right');
-        }
-    }, this);
+    // alice.on('animationstart', function(animation, frame) {
+    // }, this);
     alice.on('animationcomplete', function(animation, frame) {
         if (animation.key === 'alice_attackR' || animation.key === 'alice_attackL') {
             alice_attack = false;
@@ -246,23 +240,23 @@ function update ()
     if (cursors.left.isDown) {
         direction1 = 'left';
         if (Phaser.Input.Keyboard.JustDown(shift)) {
-            alice.setVelocityX(-500);
-            alice.anims.play('alice_dashL');
+            alice.setVelocityX(-300);
+            if (!alice_attack) alice.anims.play('alice_dashL');
         }
         else if (!cursors.shift.isDown) {
             alice.setVelocityX(-100);
-            alice.anims.play('alice_walkL', true);
+            if (!alice_attack) alice.anims.play('alice_walkL', true);
         }
     }
     else if (cursors.right.isDown) {
         direction1 = 'right';
         if (Phaser.Input.Keyboard.JustDown(shift)) {
-            alice.setVelocityX(500);
-            alice.anims.play('alice_dashR');
+            alice.setVelocityX(300);
+            if (!alice_attack) alice.anims.play('alice_dashR');
         }
         else if (!cursors.shift.isDown) {
             alice.setVelocityX(100);
-            alice.anims.play('alice_walkR', true);
+            if (!alice_attack) alice.anims.play('alice_walkR', true);
         }
     }
     else {
