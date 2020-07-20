@@ -24,6 +24,9 @@ var config = {
 var alice_attack = false;
 var reimu_attack = false;
 
+// Ball Velocity Setters
+var velocity;
+
 // Input Holders
 var cursors;
 var keyW;
@@ -58,17 +61,29 @@ function preload ()
     this.load.spritesheet('alice_lose', 'assets/alice_lose.png', {frameWidth: 100, frameHeight: 90});
 
     // Reimu Animation Sprites
-    this.load.spritesheet('reimu_idleL', 'assets/reimu_idle_left.png', {frameWidth: 100, frameHeight: 102});
-    this.load.spritesheet('reimu_idleR', 'assets/reimu_idle_right.png', {frameWidth: 100, frameHeight: 103});
+    this.load.spritesheet('reimu_idleL', 'assets/reimu_idle_left.png', {frameWidth: 100, frameHeight: 103});
+    this.load.spritesheet('reimu_idleR', 'assets/reimu_idle_right.png', {frameWidth: 100, frameHeight: 102});
     this.load.spritesheet('reimu_walkL', 'assets/reimu_walk_left.png', {frameWidth: 115, frameHeight: 111});
+    this.load.spritesheet('reimu_walkR', 'assets/reimu_walk_right.png', {frameWidth: 110, frameHeight: 125});
+    this.load.spritesheet('reimu_dashL', 'assets/reimu_dash_left.png', {frameWidth: 100, frameHeight: 109});
+    this.load.spritesheet('reimu_dashR', 'assets/reimu_dash_right.png', {frameWidth: 120, frameHeight: 100});
 }
 
-function randVelocity() {
-    which = Math.random();
-    positive = Math.floor(Math.random() * (250 - 100) ) + 100;
-    negative = Math.floor(Math.random() * (-100 + 250) ) - 100;
-    if (which < 0.5) return positive;
-    else return negative;
+function setBallVelocity(total_score) {
+    var x_vel = [-25, 25, -50, 50, -75, 75]
+    var y_vel = [-150, 150, -175, 175, -200, 200, -250, 250]
+    var x_choice = Math.floor(Math.random() * 6);
+    var y_choice;
+
+    if (total_score < 5) {
+        // Slower Ball
+        y_choice = Math.floor(Math.random() * 4);
+    }
+    else {
+        // Faster Ball
+        y_choice = Math.floor(Math.random() * 4) + 4;
+    }
+    return [x_vel[x_choice], y_vel[y_choice]];
 }
 
 function whenAliceAttack(alice_box, ball) {
@@ -79,15 +94,22 @@ function whenAliceAttack(alice_box, ball) {
 }
 
 function resetBall() {
+    velocity = setBallVelocity(reimu_score + alice_score);
     ball.x = 160;
     ball.y = 240;
-    ball.setVelocityX(randVelocity());
-    ball.setVelocityY(randVelocity());
+    ball.setVelocityX(velocity[0]);
+    ball.setVelocityY(velocity[1]);
 }
 
 function scoreReimu(top_goal, ball) {
     alice_score_sprites[4 - reimu_score].destroy();
     reimu_score++;
+    resetBall();
+}
+
+function scoreAlice(bottom_goal, ball) {
+    reimu_score_sprites[alice_score].destroy();
+    alice_score++;
     resetBall();
 }
 
@@ -100,6 +122,10 @@ function create ()
     alice_score_sprites = [];
     for (y = 50; y < 200; y += 30) {
         alice_score_sprites.push(this.add.sprite(20, y, 'alice_score').setScale(0.5));
+    }
+    reimu_score_sprites = [];
+    for (y = 250; y < 400; y += 30) {
+        reimu_score_sprites.push(this.add.sprite(300, y, 'alice_score').setScale(0.5));
     }
 
     // ALice Animations
@@ -177,6 +203,22 @@ function create ()
         frameRate: 15,
         repeat: -1
     });
+    this.anims.create({
+        key: 'reimu_walkR',
+        frames: this.anims.generateFrameNumbers('reimu_walkR', {start: 0, end: 7}),
+        frameRate: 15,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'reimu_dashL',
+        frames: this.anims.generateFrameNumbers('reimu_dashL', {start: 4, end: 0}),
+        frameRate: 10
+    });
+    this.anims.create({
+        key: 'reimu_dashR',
+        frames: this.anims.generateFrameNumbers('reimu_dashR', {start: 0, end: 2}),
+        frameRate: 7,
+    });
 
     // Score box
     top_goal = this.add.rectangle(160, 5, 320, 10, 0xFF2D00);
@@ -186,36 +228,38 @@ function create ()
 
     // Pong bar left (Alice)
     alice = this.physics.add.sprite(160, 50, 'alice_idleL').setScale(0.5);
-    alice.body.setSize(200, 50);
+    alice.body.setSize(100, 50);
     alice.setCollideWorldBounds(true);
     alice.setImmovable(true);
 
     // Overlap Box for Alice
-    alice_box = this.add.rectangle(alice.x, alice.y, 100, 75);
+    alice_box = this.add.rectangle(alice.x, alice.y, 50, 20).setOrigin(0.5, -0.65);
     this.physics.add.existing(alice_box);
 
     // Pong bar Right (Reimu)
     reimu = this.physics.add.sprite(160, 430, 'reimu_idleL').setScale(0.5);
-    reimu.body.setSize(200, 50);
+    reimu.body.setSize(100, 50);
     reimu.setCollideWorldBounds(true);
     reimu.setImmovable(true);
 
     // Overlap Box for Reimu
-    reimu_box = this.add.rectangle(reimu.x, reimu.y, 100, 75);
+    reimu_box = this.add.rectangle(reimu.x, reimu.y, 50, 20).setOrigin(0.5, 1.65);
     this.physics.add.existing(reimu_box);
 
     // Ball
     ball = this.physics.add.sprite(160, 240, 'ball');
     ball.setCollideWorldBounds(true, 1, 1);
     ball.setBounce(1, 1);
-    ball.setVelocityX(randVelocity());
-    ball.setVelocityY(randVelocity());
+    velocity = setBallVelocity(reimu_score + alice_score);
+    ball.setVelocityX(velocity[0]);
+    ball.setVelocityY(velocity[1]);
 
     // Colisions
     this.physics.add.collider(alice, ball);
     this.physics.add.collider(reimu, ball);
     this.physics.add.overlap(alice_box, ball, whenAliceAttack);
     this.physics.add.overlap(top_goal, ball, scoreReimu);
+    this.physics.add.overlap(bottom_goal, ball, scoreAlice);
 
     // Cursor Inputs
     cursors = this.input.keyboard.createCursorKeys();
@@ -228,9 +272,10 @@ function create ()
     // alice.on('animationstart', function(animation, frame) {
     // }, this);
     alice.on('animationcomplete', function(animation, frame) {
+        // Alice animation events
         if (animation.key === 'alice_attackR' || animation.key === 'alice_attackL') {
             alice_attack = false;
-            alice_box = this.add.rectangle(alice.x, alice.y, 100, 75);
+            alice_box = this.add.rectangle(alice.x, alice.y, 50, 20).setOrigin(0.5, -0.65);
             this.physics.add.existing(alice_box);
             this.physics.add.overlap(alice_box, ball, whenAliceAttack);
         }
@@ -246,6 +291,18 @@ function create ()
             alice.anims.play('alice_walkR', true);
         }
     }, this);
+
+    reimu.on('animationcomplete', function(animation, frame) {
+        // Reimu animation events
+        if (animation.key === 'reimu_dashL') {
+            reimu.setVelocityX(-100);
+            reimu.anims.play('reimu_walkL', true);
+        }
+        else if (animation.key === 'reimu_dashR') {
+            reimu.setVelocityX(100);
+            reimu.anims.play('reimu_walkR', true);
+        }
+    }, this);
 }
 
 function update ()
@@ -253,6 +310,8 @@ function update ()
     // Overlap Box follows player
     alice_box.x = alice.x;
     alice_box.y = alice.y;
+    reimu_box.x = reimu.x;
+    reimu_box.y = reimu.y;
 
     // Cap ball speed
     if (ball.body.velocity.x > 250) ball.setVelocityX(250);
@@ -261,7 +320,7 @@ function update ()
     if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
 
     // If Reimu Wins
-    if (reimu_score === 1) {
+    if (reimu_score === 2) {
         reimu_score = 0;
         alice_score = 0;
         alice_attack = true;
@@ -305,14 +364,29 @@ function update ()
 
     if (keyA.isDown) {
         direction2 = 'left';
-        reimu.setVelocityX(-100);
-        if (!reimu_attack) reimu.anims.play('reimu_walkL', true);
+        if (Phaser.Input.Keyboard.JustDown(space)) {
+            reimu.setVelocityX(-300);
+            if (!reimu_attack) reimu.anims.play('reimu_dashL');
+        }
+        else if (!cursors.space.isDown) {
+            reimu.setVelocityX(-100);
+            if (!reimu_attack) reimu.anims.play('reimu_walkL', true);
+        }
     }
     else if (keyD.isDown) {
-        reimu.setVelocityX(100);
+        direction2 = 'right';
+        if (Phaser.Input.Keyboard.JustDown(space)) {
+            reimu.setVelocityX(300);
+            if (!reimu_attack) reimu.anims.play('reimu_dashR');
+        }
+        else if (!cursors.space.isDown) {
+            reimu.setVelocityX(100);
+            if (!reimu_attack) reimu.anims.play('reimu_walkR', true);
+        }
     }
     else {
         reimu.setVelocityX(0);
-        reimu.anims.play('reimu_idleL', true);
+        if (direction2 === 'left') reimu.anims.play('reimu_idleL', true);
+        else reimu.anims.play('reimu_idleR', true);
     }
 }
