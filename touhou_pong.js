@@ -52,12 +52,20 @@ function preload ()
     this.load.image('reimu_popup', 'assets/reimu_win_popup.png');
     this.load.image('alice_popup', 'assets/alice_win_popup.png');
 
-    // Music
+    // Music/sounds
     this.load.audio('background_music', 'music/un_owen_was_her.mp3');
     this.load.audio('dash_effect', 'music/dash_effect.mp3');
-    this.load.audio('wack1', 'music/wack1.mp3');
-    this.load.audio('wack2', 'music/wack2.mp3');
-    this.load.audio('wack3', 'music/wack3.mp3');
+
+    // Reimu ball hit effects
+    for (i = 1; i < 9; i++) {
+        this.load.audio('rei' + i, 'music/rei_hit_' + i + '.wav');
+    }
+
+    // Alice ball hit effects
+    for (i = 1; i < 7; i++) {
+        this.load.audio('ali' + i, 'music/alice_hit_' + i + '.wav');
+    }
+
 
     // Alice Animation Spritesheets
     this.load.spritesheet('alice_dashL', 'assets/alice_dash_left.png', {frameWidth: 76, frameHeight: 91});
@@ -112,9 +120,27 @@ function create ()
         delay: 0
     }
 
-    // Wacks
-    wacks = [this.sound.add('wack1'), this.sound.add('wack2'), this.sound.add('wack3')];
-    wackConfig = {
+    // Add reimu hits
+    rei_hit = [];
+    for (i = 1; i < 9; i++) {
+        rei_hit.push(this.sound.add('rei' + i));
+    }
+    reiConfig = {
+        mute: false,
+        volume: 0.25,
+        rate: 1,
+        detune: 1,
+        seek: 0,
+        loop: false,
+        delay: 0
+    }
+
+    // Add alice hits
+    ali_hit = [];
+    for (i = 1; i < 7; i++) {
+        ali_hit.push(this.sound.add('ali' + i));
+    }
+    aliConfig = {
         mute: false,
         volume: 0.25,
         rate: 1,
@@ -476,8 +502,8 @@ function whenAliceAttack(alice_box, ball) {
     alice_box.destroy();
     if (direction1 === 'left') alice.anims.play('alice_attackL');
     else alice.anims.play('alice_attackR');
-    rand = Math.floor(Math.random() * 3);
-    wacks[rand].play(wackConfig);
+    rand = Math.floor(Math.random() * 6);
+    ali_hit[rand].play(aliConfig);
 }
 
 function whenReimuAttack(reimu_box, ball) {
@@ -485,8 +511,8 @@ function whenReimuAttack(reimu_box, ball) {
     reimu_box.destroy();
     if (direction2 === 'left') reimu.anims.play('reimu_attackL');
     else reimu.anims.play('reimu_attackR');
-    rand = Math.floor(Math.random() * 3);
-    wacks[rand].play(wackConfig);
+    rand = Math.floor(Math.random() * 8);
+    rei_hit[rand].play(reiConfig);
 }
 
 function resetBall() {
