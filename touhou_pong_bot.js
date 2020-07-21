@@ -351,7 +351,7 @@ function create ()
     this.physics.add.collider(reimu, ball, function() {
         if (ball.body.velocity.y > 0) ball.body.velocity.y += 5;
         else ball.body.velocity.y -= 5;
-        if (ball.body.velocity.x > 0) {
+        if (randInt(2) === 0) {
             ball.body.velocity.x += randInt(6) * 5;
         }
         else {
@@ -432,10 +432,10 @@ function update ()
     ball.rotation += 0.1;
 
     // Cap ball speed
-    if (ball.body.velocity.x > 250) ball.setVelocityX(250);
-    if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
-    if (ball.body.velocity.y > 250) ball.setVelocityY(250);
-    if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
+    if (ball.body.velocity.x > 150) ball.setVelocityX(150);
+    if (ball.body.velocity.x < -150) ball.setVelocityX(-150);
+    if (ball.body.velocity.y > 300) ball.setVelocityY(300);
+    if (ball.body.velocity.y < -300) ball.setVelocityX(-300);
 
     // If Reimu Wins
     if (reimu_score === 5) {
@@ -605,7 +605,6 @@ function AIIdle() {
 }
 
 function reimuAI() {
-    console.log('overlap');
     if (ball.body.velocity.y < 0) {
         AIIdle();
     }
