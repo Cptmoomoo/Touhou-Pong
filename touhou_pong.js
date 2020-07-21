@@ -10,7 +10,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: {y: 0},
-            debug: true
+            debug: false
         }
     },
     scene: {
@@ -67,6 +67,8 @@ function preload ()
     this.load.spritesheet('reimu_walkR', 'assets/reimu_walk_right.png', {frameWidth: 110, frameHeight: 125});
     this.load.spritesheet('reimu_dashL', 'assets/reimu_dash_left.png', {frameWidth: 100, frameHeight: 109});
     this.load.spritesheet('reimu_dashR', 'assets/reimu_dash_right.png', {frameWidth: 120, frameHeight: 100});
+    this.load.spritesheet('reimu_attackL', 'assets/reimu_attack_left.png', {frameWidth: 110, frameHeight: 113});
+    this.load.spritesheet('reimu_attackR', 'assets/reimu_attack_right.png', {frameWidth: 100, frameHeight: 140});
 }
 
 function setBallVelocity(total_score) {
@@ -91,6 +93,13 @@ function whenAliceAttack(alice_box, ball) {
     alice_box.destroy();
     if (direction1 === 'left') alice.anims.play('alice_attackL');
     else alice.anims.play('alice_attackR');
+}
+
+function whenReimuAttack(reimu_box, ball) {
+    reimu_attack = true;
+    reimu_box.destroy();
+    if (direction2 === 'left') reimu.anims.play('reimu_attackL');
+    else reimu.anims.play('reimu_attackR');
 }
 
 function resetBall() {
@@ -219,6 +228,16 @@ function create ()
         frames: this.anims.generateFrameNumbers('reimu_dashR', {start: 0, end: 2}),
         frameRate: 7,
     });
+    this.anims.create({
+        key: 'reimu_attackL',
+        frames: this.anims.generateFrameNumbers('reimu_attackL', {start: 7, end: 0}),
+        frameRate: 10,
+    });
+    this.anims.create({
+        key: 'reimu_attackR',
+        frames: this.anims.generateFrameNumbers('reimu_attackR', {start: 0, end: 5}),
+        frameRate: 10,
+    });
 
     // Score box
     top_goal = this.add.rectangle(160, 5, 320, 10, 0xFF2D00);
@@ -258,6 +277,7 @@ function create ()
     this.physics.add.collider(alice, ball);
     this.physics.add.collider(reimu, ball);
     this.physics.add.overlap(alice_box, ball, whenAliceAttack);
+    this.physics.add.overlap(reimu_box, ball, whenReimuAttack);
     this.physics.add.overlap(top_goal, ball, scoreReimu);
     this.physics.add.overlap(bottom_goal, ball, scoreAlice);
 
@@ -294,7 +314,13 @@ function create ()
 
     reimu.on('animationcomplete', function(animation, frame) {
         // Reimu animation events
-        if (animation.key === 'reimu_dashL') {
+        if (animation.key === 'reimu_attackL' || animation.key === 'reimu_attackR') {
+            reimu_attack = false;
+            reimu_box = this.add.rectangle(reimu.x, reimu.y, 50, 20).setOrigin(0.5, 1.65);
+            this.physics.add.existing(reimu_box);
+            this.physics.add.overlap(reimu_box, ball, whenReimuAttack);
+        }
+        else if (animation.key === 'reimu_dashL') {
             reimu.setVelocityX(-100);
             reimu.anims.play('reimu_walkL', true);
         }
@@ -386,7 +412,9 @@ function update ()
     }
     else {
         reimu.setVelocityX(0);
-        if (direction2 === 'left') reimu.anims.play('reimu_idleL', true);
-        else reimu.anims.play('reimu_idleR', true);
+        if (!reimu_attack) {
+            if (direction2 === 'left') reimu.anims.play('reimu_idleL', true);
+            else reimu.anims.play('reimu_idleR', true);
+        }
     }
 }
