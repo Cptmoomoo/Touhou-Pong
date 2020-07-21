@@ -341,22 +341,14 @@ function create ()
     this.physics.add.collider(alice, ball, function() {
         if (ball.body.velocity.y > 0) ball.body.velocity.y += 5;
         else ball.body.velocity.y -= 5;
-        if (ball.body.velocity.x > 0) {
-            ball.body.velocity.x += randInt(6) * 5;
-        }
-        else {
-            ball.body.velocity.x -= randInt(6) * 5;
-        }
+        if (randInt(2) === 0) ball.body.velocity.x += randInt(6) * 5;
+        else ball.body.velocity.x -= randInt(6) * 5;    
     });
     this.physics.add.collider(reimu, ball, function() {
         if (ball.body.velocity.y > 0) ball.body.velocity.y += 5;
         else ball.body.velocity.y -= 5;
-        if (randInt(2) === 0) {
-            ball.body.velocity.x += randInt(6) * 5;
-        }
-        else {
-            ball.body.velocity.x -= randInt(6) * 5;
-        }
+        if (randInt(2) === 0) ball.body.velocity.x += randInt(6) * 5;
+        else ball.body.velocity.x -= randInt(6) * 5;
     });
     this.physics.add.overlap(alice_box, ball, whenAliceAttack);
     this.physics.add.overlap(reimu_box, ball, whenReimuAttack);
