@@ -361,7 +361,7 @@ function update ()
     if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
 
     // If Reimu Wins
-    if (reimu_score === 1) {
+    if (reimu_score === 5) {
         reimu_score = 0;
         alice_score = 0;
         alice_attack = true;
@@ -375,7 +375,7 @@ function update ()
     }
 
     // If Alice wins
-    if (alice_score === 1) {
+    if (alice_score === 5) {
         reimu_score = 0;
         alice_score = 0;
         reimu_attack = true;
