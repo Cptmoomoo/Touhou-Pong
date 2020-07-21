@@ -44,10 +44,11 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.image('background', 'assets/black.jpg');
-    this.load.image('pongbar', 'assets/reimu.png');
+    // General game assets
+    this.load.image('background', 'assets/background.png');
     this.load.image('ball', 'assets/ball.png');
     this.load.image('alice_score', 'assets/alice_doll.png');
+    this.load.image('reimu_score', 'assets/reimu_stick.png');
 
     // Alice Animation Spritesheets
     this.load.spritesheet('alice_dashL', 'assets/alice_dash_left.png', {frameWidth: 76, frameHeight: 91});
@@ -69,6 +70,7 @@ function preload ()
     this.load.spritesheet('reimu_dashR', 'assets/reimu_dash_right.png', {frameWidth: 120, frameHeight: 100});
     this.load.spritesheet('reimu_attackL', 'assets/reimu_attack_left.png', {frameWidth: 110, frameHeight: 113});
     this.load.spritesheet('reimu_attackR', 'assets/reimu_attack_right.png', {frameWidth: 100, frameHeight: 140});
+    this.load.spritesheet('reimu_lose', 'assets/reimu_lose.png', {frameWidth: 105, frameHeight: 67});
 }
 
 function setBallVelocity(total_score) {
@@ -125,16 +127,16 @@ function scoreAlice(bottom_goal, ball) {
 function create ()
 {
     // Background
-    this.add.image(256, 144, 'background');
+    this.add.image(160, 240, 'background').setScale(1.5);
 
     // Render Score Sprites
     alice_score_sprites = [];
-    for (y = 50; y < 200; y += 30) {
+    for (y = 100; y < 250; y += 30) {
         alice_score_sprites.push(this.add.sprite(20, y, 'alice_score').setScale(0.5));
     }
     reimu_score_sprites = [];
-    for (y = 250; y < 400; y += 30) {
-        reimu_score_sprites.push(this.add.sprite(300, y, 'alice_score').setScale(0.5));
+    for (y = 260; y < 410; y += 30) {
+        reimu_score_sprites.push(this.add.sprite(300, y, 'reimu_score').setScale(0.35));
     }
 
     // ALice Animations
@@ -238,14 +240,24 @@ function create ()
         frames: this.anims.generateFrameNumbers('reimu_attackR', {start: 0, end: 5}),
         frameRate: 10,
     });
+    this.anims.create({
+        key: 'reimu_lose',
+        frames: this.anims.generateFrameNumbers('reimu_lose', {start: 10, end: 0}),
+        frameRate: 10,
+    });
+    this.anims.create({
+        key: 'reimu_down',
+        frames: [{key: 'reimu_lose', frame: 0}],
+        frameRate: 10,
+    });
 
     // Score box
-    top_goal = this.add.rectangle(160, 5, 320, 10, 0xFF2D00);
+    top_goal = this.add.rectangle(160, 5, 320, 10);
     this.physics.add.existing(top_goal);
-    bottom_goal = this.add.rectangle(160, 475, 320, 10, 0xFF2D00);
+    bottom_goal = this.add.rectangle(160, 475, 320, 10);
     this.physics.add.existing(bottom_goal);
 
-    // Pong bar left (Alice)
+    // Pong bar up (Alice)
     alice = this.physics.add.sprite(160, 50, 'alice_idleL').setScale(0.5);
     alice.body.setSize(100, 50);
     alice.setCollideWorldBounds(true);
@@ -255,7 +267,7 @@ function create ()
     alice_box = this.add.rectangle(alice.x, alice.y, 50, 20).setOrigin(0.5, -0.65);
     this.physics.add.existing(alice_box);
 
-    // Pong bar Right (Reimu)
+    // Pong bar bottom (Reimu)
     reimu = this.physics.add.sprite(160, 430, 'reimu_idleL').setScale(0.5);
     reimu.body.setSize(100, 50);
     reimu.setCollideWorldBounds(true);
@@ -269,7 +281,7 @@ function create ()
     ball = this.physics.add.sprite(160, 240, 'ball');
     ball.setCollideWorldBounds(true, 1, 1);
     ball.setBounce(1, 1);
-    velocity = setBallVelocity(reimu_score + alice_score);
+    velocity = setBallVelocity(0);
     ball.setVelocityX(velocity[0]);
     ball.setVelocityY(velocity[1]);
 
@@ -289,8 +301,6 @@ function create ()
     space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     // Animation Events
-    // alice.on('animationstart', function(animation, frame) {
-    // }, this);
     alice.on('animationcomplete', function(animation, frame) {
         // Alice animation events
         if (animation.key === 'alice_attackR' || animation.key === 'alice_attackL') {
@@ -320,6 +330,9 @@ function create ()
             this.physics.add.existing(reimu_box);
             this.physics.add.overlap(reimu_box, ball, whenReimuAttack);
         }
+        else if (animation.key === 'reimu_lose') {
+            reimu.anims.play('reimu_down');
+        }
         else if (animation.key === 'reimu_dashL') {
             reimu.setVelocityX(-100);
             reimu.anims.play('reimu_walkL', true);
@@ -346,14 +359,29 @@ function update ()
     if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
 
     // If Reimu Wins
-    if (reimu_score === 2) {
+    if (reimu_score === 5) {
         reimu_score = 0;
         alice_score = 0;
         alice_attack = true;
         alice.anims.play('alice_lose');
         this.physics.pause();
+        this.add.text(125, 170, 'Reimu Wins!', {fill: '#bd1515'});
         const restartButton = this.add.text(125, 190, 'Restart', { fill: '#0f0' }).setInteractive().on('pointerdown', () => {
             alice_attack = false;
+            this.scene.restart();
+        });
+    }
+
+    // If Alice wins
+    if (alice_score === 5) {
+        reimu_score = 0;
+        alice_score = 0;
+        reimu_attack = true;
+        reimu.anims.play('reimu_lose');
+        this.physics.pause();
+        this.add.text(125, 170, 'Alice Wins!', {fill: '#e0c91b'});
+        const restartButton = this.add.text(125, 190, 'Restart', { fill: '#0f0' }).setInteractive().on('pointerdown', () => {
+            reimu_attack = false;
             this.scene.restart();
         });
     }
