@@ -49,6 +49,8 @@ function preload ()
     this.load.image('ball', 'assets/ball.png');
     this.load.image('alice_score', 'assets/alice_doll.png');
     this.load.image('reimu_score', 'assets/reimu_stick.png');
+    this.load.image('reimu_popup', 'assets/reimu_win_popup.png');
+    this.load.image('alice_popup', 'assets/alice_win_popup.png');
 
     // Alice Animation Spritesheets
     this.load.spritesheet('alice_dashL', 'assets/alice_dash_left.png', {frameWidth: 76, frameHeight: 91});
@@ -359,28 +361,28 @@ function update ()
     if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
 
     // If Reimu Wins
-    if (reimu_score === 5) {
+    if (reimu_score === 1) {
         reimu_score = 0;
         alice_score = 0;
         alice_attack = true;
         alice.anims.play('alice_lose');
         this.physics.pause();
-        this.add.text(125, 170, 'Reimu Wins!', {fill: '#bd1515'});
-        const restartButton = this.add.text(125, 190, 'Restart', { fill: '#0f0' }).setInteractive().on('pointerdown', () => {
+        this.add.image(160, 240, 'reimu_popup').setScale(0.8);
+        const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
             alice_attack = false;
             this.scene.restart();
         });
     }
 
     // If Alice wins
-    if (alice_score === 5) {
+    if (alice_score === 1) {
         reimu_score = 0;
         alice_score = 0;
         reimu_attack = true;
         reimu.anims.play('reimu_lose');
         this.physics.pause();
-        this.add.text(125, 170, 'Alice Wins!', {fill: '#e0c91b'});
-        const restartButton = this.add.text(125, 190, 'Restart', { fill: '#0f0' }).setInteractive().on('pointerdown', () => {
+        this.add.image(160, 240, 'alice_popup').setScale(0.8);
+        const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
             reimu_attack = false;
             this.scene.restart();
         });
@@ -389,7 +391,7 @@ function update ()
     if (cursors.left.isDown) {
         direction1 = 'left';
         if (Phaser.Input.Keyboard.JustDown(shift)) {
-            alice.setVelocityX(-300);
+            alice.setVelocityX(-250);
             if (!alice_attack) alice.anims.play('alice_dashL');
         }
         else if (!cursors.shift.isDown) {
@@ -400,7 +402,7 @@ function update ()
     else if (cursors.right.isDown) {
         direction1 = 'right';
         if (Phaser.Input.Keyboard.JustDown(shift)) {
-            alice.setVelocityX(300);
+            alice.setVelocityX(250);
             if (!alice_attack) alice.anims.play('alice_dashR');
         }
         else if (!cursors.shift.isDown) {
@@ -419,7 +421,7 @@ function update ()
     if (keyA.isDown) {
         direction2 = 'left';
         if (Phaser.Input.Keyboard.JustDown(space)) {
-            reimu.setVelocityX(-300);
+            reimu.setVelocityX(-250);
             if (!reimu_attack) reimu.anims.play('reimu_dashL');
         }
         else if (!cursors.space.isDown) {
@@ -430,7 +432,7 @@ function update ()
     else if (keyD.isDown) {
         direction2 = 'right';
         if (Phaser.Input.Keyboard.JustDown(space)) {
-            reimu.setVelocityX(300);
+            reimu.setVelocityX(250);
             if (!reimu_attack) reimu.anims.play('reimu_dashR');
         }
         else if (!cursors.space.isDown) {
