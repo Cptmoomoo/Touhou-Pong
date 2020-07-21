@@ -439,7 +439,7 @@ function update ()
         reimu.anims.play('reimu_lose');
         this.physics.pause();
         this.add.image(160, 240, 'alice_popup').setScale(0.8);
-        aliWins[randInt(5)].play(aliConfig);
+        aliWins[randInt(4)].play(aliConfig);
         const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
             reimu_attack = false;
             back_music.stop();
