@@ -52,6 +52,9 @@ function preload ()
     this.load.image('reimu_popup', 'assets/reimu_win_popup.png');
     this.load.image('alice_popup', 'assets/alice_win_popup.png');
 
+    // Music
+    this.load.audio('background_music', 'music/un_owen_was_her.mp3');
+
     // Alice Animation Spritesheets
     this.load.spritesheet('alice_dashL', 'assets/alice_dash_left.png', {frameWidth: 76, frameHeight: 91});
     this.load.spritesheet('alice_dashR', 'assets/alice_dash_right.png', {frameWidth: 76, frameHeight: 91});
@@ -130,6 +133,19 @@ function create ()
 {
     // Background
     this.add.image(160, 240, 'background').setScale(1.5);
+
+    // Background Music
+    back_music = this.sound.add('background_music');
+    musicConfig = {
+        mute: false,
+        volume: 0.1,
+        rate: 1,
+        detune: 1,
+        seek: 0,
+        loop: true,
+        delay: 0
+    }
+    back_music.play(musicConfig);
 
     // Render Score Sprites
     alice_score_sprites = [];
@@ -368,7 +384,7 @@ function update ()
         alice.anims.play('alice_lose');
         this.physics.pause();
         this.add.image(160, 240, 'reimu_popup').setScale(0.8);
-        const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
+        const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#000000' }).setInteractive().on('pointerdown', () => {
             alice_attack = false;
             this.scene.restart();
         });
@@ -382,7 +398,7 @@ function update ()
         reimu.anims.play('reimu_lose');
         this.physics.pause();
         this.add.image(160, 240, 'alice_popup').setScale(0.8);
-        const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
+        const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#000000' }).setInteractive().on('pointerdown', () => {
             reimu_attack = false;
             this.scene.restart();
         });
