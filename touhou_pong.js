@@ -56,14 +56,26 @@ function preload ()
     this.load.audio('background_music', 'music/un_owen_was_her.mp3');
     this.load.audio('dash_effect', 'music/dash_effect.mp3');
 
-    // Reimu ball hit effects
+    // Reimu effects
     for (i = 1; i < 9; i++) {
         this.load.audio('rei' + i, 'music/rei_hit_' + i + '.wav');
     }
+    for (i = 1; i < 4; i++) {
+        this.load.audio('rei_losePoint' + i, 'music/rei_lose_point_' + i + '.wav');
+    }
+    for (i = 1; i < 6; i++) {
+        this.load.audio('rei_win' + i, 'music/rei_win_' + i + '.wav');
+    }
 
-    // Alice ball hit effects
+    // Alice effects
     for (i = 1; i < 7; i++) {
         this.load.audio('ali' + i, 'music/alice_hit_' + i + '.wav');
+    }
+    for (i = 1; i < 5; i++) {
+        this.load.audio('ali_losePoint' + i, 'music/alice_lose_point_' + i + '.wav');
+    }
+    for (i = 1; i < 5; i++) {
+        this.load.audio('ali_win' + i, 'music/alice_win_' + i + '.wav');
     }
 
 
@@ -125,6 +137,14 @@ function create ()
     for (i = 1; i < 9; i++) {
         rei_hit.push(this.sound.add('rei' + i));
     }
+    reiLosePoints = [];
+    for (i = 1; i < 4; i++) {
+        reiLosePoints.push(this.sound.add('rei_losePoint' + i));
+    }
+    reiWins = [];
+    for (i = 1; i < 6; i++) {
+        reiWins.push(this.sound.add('rei_win' + i));
+    }
     reiConfig = {
         mute: false,
         volume: 0.25,
@@ -139,6 +159,14 @@ function create ()
     ali_hit = [];
     for (i = 1; i < 7; i++) {
         ali_hit.push(this.sound.add('ali' + i));
+    }
+    aliLosePoints = [];
+    for (i = 1; i < 5; i++) {
+        aliLosePoints.push(this.sound.add('ali_losePoint' + i));
+    }
+    aliWins = [];
+    for (i = 1; i < 5; i++) {
+        aliWins.push(this.sound.add('ali_win' + i));
     }
     aliConfig = {
         mute: false,
@@ -387,8 +415,10 @@ function update ()
         alice.anims.play('alice_lose');
         this.physics.pause();
         this.add.image(160, 240, 'reimu_popup').setScale(0.8);
+        reiWins[randInt(5)].play(reiConfig);
         const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
             alice_attack = false;
+            back_music.stop();
             this.scene.restart();
         });
     }
@@ -401,8 +431,10 @@ function update ()
         reimu.anims.play('reimu_lose');
         this.physics.pause();
         this.add.image(160, 240, 'alice_popup').setScale(0.8);
+        aliWins[randInt(5)].play(aliConfig);
         const restartButton = this.add.text(175, 275, 'Restart', {fontFamily: 'impact', fill: '#0f0' }).setInteractive().on('pointerdown', () => {
             reimu_attack = false;
+            back_music.stop();
             this.scene.restart();
         });
     }
@@ -483,16 +515,16 @@ function update ()
 function setBallVelocity(total_score) {
     var x_vel = [-25, 25, -50, 50, -75, 75]
     var y_vel = [-150, 150, -175, 175, -200, 200, -250, 250]
-    var x_choice = Math.floor(Math.random() * 6);
+    var x_choice = randInt(6);
     var y_choice;
 
     if (total_score < 5) {
         // Slower Ball
-        y_choice = Math.floor(Math.random() * 4);
+        y_choice = randInt(4);
     }
     else {
         // Faster Ball
-        y_choice = Math.floor(Math.random() * 4) + 4;
+        y_choice = randInt(4) + 4;
     }
     return [x_vel[x_choice], y_vel[y_choice]];
 }
@@ -502,8 +534,7 @@ function whenAliceAttack(alice_box, ball) {
     alice_box.destroy();
     if (direction1 === 'left') alice.anims.play('alice_attackL');
     else alice.anims.play('alice_attackR');
-    rand = Math.floor(Math.random() * 6);
-    ali_hit[rand].play(aliConfig);
+    ali_hit[randInt(6)].play(aliConfig);
 }
 
 function whenReimuAttack(reimu_box, ball) {
@@ -511,8 +542,7 @@ function whenReimuAttack(reimu_box, ball) {
     reimu_box.destroy();
     if (direction2 === 'left') reimu.anims.play('reimu_attackL');
     else reimu.anims.play('reimu_attackR');
-    rand = Math.floor(Math.random() * 8);
-    rei_hit[rand].play(reiConfig);
+    rei_hit[randInt(8)].play(reiConfig);
 }
 
 function resetBall() {
@@ -526,11 +556,18 @@ function resetBall() {
 function scoreReimu(top_goal, ball) {
     alice_score_sprites[4 - reimu_score].destroy();
     reimu_score++;
+    aliLosePoints[randInt(4)].play(aliConfig);
     resetBall();
 }
 
 function scoreAlice(bottom_goal, ball) {
     reimu_score_sprites[alice_score].destroy();
     alice_score++;
+    reiLosePoints[randInt(3)].play(reiConfig);
     resetBall();
+}
+
+function randInt(max) {
+    // Random into from 0 (inclusive) to 'max' (non-inclusive)
+    return Math.floor(Math.random() * max);
 }
