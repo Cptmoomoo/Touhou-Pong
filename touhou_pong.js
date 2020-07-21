@@ -401,6 +401,8 @@ function update ()
     reimu_box.x = reimu.x;
     reimu_box.y = reimu.y;
 
+    ball.rotation += 0.1;
+
     // Cap ball speed
     if (ball.body.velocity.x > 250) ball.setVelocityX(250);
     if (ball.body.velocity.x < -250) ball.setVelocityX(-250);
