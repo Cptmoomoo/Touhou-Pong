@@ -117,7 +117,7 @@ function create ()
         loop: true,
         delay: 0
     }
-    this.sound.add('background_music').play(musicConfig);
+    back_music = this.sound.add('background_music');
 
     // Dashing Sound effect
     dash_effect = this.sound.add('dash_effect');
@@ -130,6 +130,7 @@ function create ()
         loop: false,
         delay: 0
     }
+    back_music.play(musicConfig);
 
     // Add reimu hits
     rei_hit = [];
@@ -342,7 +343,7 @@ function create ()
         if (ball.body.velocity.y > 0) ball.body.velocity.y += 5;
         else ball.body.velocity.y -= 5;
         if (randInt(2) === 0) ball.body.velocity.x += randInt(6) * 5;
-        else ball.body.velocity.x -= randInt(6) * 5;    
+        else ball.body.velocity.x -= randInt(6) * 5;
     });
     this.physics.add.collider(reimu, ball, function() {
         if (ball.body.velocity.y > 0) ball.body.velocity.y += 5;
